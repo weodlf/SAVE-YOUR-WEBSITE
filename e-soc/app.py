@@ -92,6 +92,12 @@ def create_app(config=None):
         response.headers.update({'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',
             'Referrer-Policy': 'no-referrer', 'Cache-Control': 'no-store',
             'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; connect-src 'self' ws: wss:; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"})
+        if request.endpoint == 'visitor_location':
+            response.headers['Content-Security-Policy'] = (
+                "default-src 'self'; script-src 'self'; style-src 'self'; "
+                "connect-src https://ipapi.co https://ipwho.is; img-src 'self' data:; "
+                "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+            )
         return response
 
     @app.errorhandler(429)
@@ -113,6 +119,10 @@ def create_app(config=None):
     @app.get('/console')
     def console():
         return render_template('index.html', scan_port=int(os.getenv('PORT', '5000')))
+
+    @app.get('/my-ip')
+    def visitor_location():
+        return render_template('visitor-location.html')
 
     @app.get('/operator')
     def operator():

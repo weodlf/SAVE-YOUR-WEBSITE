@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="color-scheme" content="dark">
+<title>E-SOC · 내 IP와 접속 위치</title>
+<link rel="stylesheet" href="/static/visitor-location.css">
+</head>
+<body>
+<header><div class="header-inner"><div class="brand"><span class="shield" aria-hidden="true">E</span>E-SOC</div><span class="tag">MY CONNECTION / IP LOOKUP</span></div></header>
+<main>
+<section class="hero"><div><div class="eyebrow">KNOW YOUR CONNECTION</div><h1>내 접속 정보,<br><span>한눈에 확인하세요.</span></h1><p class="lead">현재 이 브라우저가 사용하는 공개 IP와 대략적인 접속 지역을 확인해요.<br>다운로드·로그인 없이, 이 페이지에서 바로 확인하세요.</p></div><div class="orb" aria-hidden="true"><span>⌖</span></div></section>
+<section class="panel consent" aria-labelledby="lookup-title"><div><strong id="lookup-title">버튼을 누를 때만 조회합니다.</strong><p>조회하면 외부 IP 위치 서비스에 현재 공개 IP가 전달됩니다.<br>GPS 권한은 요청하지 않으며, 조회 결과는 이 화면 메모리에만 표시해요.</p></div><div class="actions"><button class="primary" id="lookup"><span id="lookupIcon" aria-hidden="true">↗</span><span id="lookupText">내 IP와 위치 확인</span></button><button class="secondary" id="clear">화면 비우기</button></div></section>
+<p class="hint">인터넷 연결이 필요해요. 다른 방문자나 다른 사람의 IP를 수집하는 기능은 없습니다.</p>
+<p id="status" class="status" role="status" aria-live="polite">아직 조회하지 않았어요. 준비되면 위 버튼을 눌러주세요.</p>
+<div class="state-row"><h2>MY CONNECTION OVERVIEW</h2><span id="updated">조회 결과 없음</span></div>
+<section class="cards" aria-label="접속 정보 요약"><article class="panel"><div class="card-label">PUBLIC IP ADDRESS</div><div class="value ip-value" id="ip">—</div><p class="card-note" id="ipType">인터넷에서 보이는 내 IP</p></article><article class="panel"><div class="card-label">APPROXIMATE LOCATION</div><div class="value" id="city">—</div><p class="card-note" id="country">도시 · 국가 (추정)</p></article><article class="panel"><div class="card-label">NETWORK / PROVIDER</div><div class="value" id="isp">—</div><p class="card-note" id="asn">통신사 또는 호스팅 업체</p></article></section>
+<section class="detail-grid"><article class="panel"><div class="section-heading"><h2>연결 상세 정보</h2><button class="secondary" id="copy" disabled>IP 복사</button></div><dl><div><dt>국가</dt><dd id="countryDetail">—</dd></div><div><dt>도시 / 지역</dt><dd id="region">—</dd></div><div><dt>네트워크 조직</dt><dd id="org">—</dd></div><div><dt>시간대</dt><dd id="timezone">—</dd></div><div><dt>조회 출처</dt><dd id="source">—</dd></div></dl></article><article class="panel location-card"><div class="section-heading"><h2>대략적인 위치</h2><span class="small-tag">IP BASED · NOT GPS</span></div><div class="coords"><span class="pin" aria-hidden="true">⌖</span><span id="coordinates" class="coordinates">— / —</span><span id="coordinateHint" class="empty-map">조회 후 추정 좌표가 표시돼요</span></div><p class="location-note">좌표는 IP 데이터베이스가 추정한 지역이나 통신사 거점일 수 있어요. 현재 있는 건물이나 집 주소를 의미하지 않습니다.</p><a id="map" class="map-link" target="_blank" rel="noopener noreferrer" hidden>OpenStreetMap에서 추정 지역 보기 ↗</a></article></section>
+<section class="explain" aria-label="자주 묻는 질문"><details><summary>공개 IP는 무엇인가요?</summary><p>인터넷 서비스가 현재 연결을 구분할 때 보는 주소예요. 집이나 회사의 공유기를 사용하면 여러 사람이 같은 공개 IP를 쓸 수 있어요. 이 화면은 공유기 내부의 사설 IP를 찾지 않습니다.</p></details><details><summary>위치가 실제로 있는 곳과 달라요.</summary><p>IP 위치는 추정치예요. VPN·프록시·모바일 통신망을 사용하면 다른 지역이나 통신사 거점이 표시될 수 있고, 데이터가 오래되었을 수도 있어요. 도시·좌표만으로 특정 사람이나 정확한 주소를 확인할 수 없습니다.</p></details><details><summary>외부 조회 서비스가 필요한 이유는요?</summary><p>공개 IP와 대략적인 지역은 외부 조회 서비스의 응답으로 확인해요. 페이지를 여는 것만으로 조회 요청이 실행되지는 않습니다. 브라우저의 접속 주소만 사용하며 GPS 권한은 요청하지 않아요. 네트워크·광고 차단기·서비스의 요청 한도나 브라우저 교차 출처 정책 때문에 조회에 실패할 수 있습니다.</p></details><details><summary>정보는 어디에 저장되나요?</summary><p>이 페이지은 조회 결과를 서버·쿠키·로컬 저장소에 저장하지 않습니다. 새로고침하거나 화면을 비우면 화면 메모리의 결과가 초기화돼요. 외부 조회 서비스에는 연결 정보가 전달되며 해당 서비스의 개인정보 정책이 적용됩니다. IP 복사를 누르면 IP만 기기의 클립보드에 복사됩니다.</p></details></section>
+<p class="privacy">조회 서비스: <a href="https://ipapi.co/privacy/" target="_blank" rel="noopener noreferrer">ipapi.co</a> → 실패 시 <a href="https://ipwhois.io/privacy" target="_blank" rel="noopener noreferrer">ipwho.is</a>. 지도 링크를 누르면 OpenStreetMap에 추정 좌표가 전달됩니다. 서비스가 제공하지 않는 항목은 ‘정보 없음’으로 표시해요.</p>
+</main>
+<footer><span>E-SOC / PERSONAL CONNECTION INSIGHT</span><span>NO DOWNLOAD · NO LOGIN · NO GPS</span></footer>
+<script src="/static/visitor-location.js" defer></script>
+</body></html>

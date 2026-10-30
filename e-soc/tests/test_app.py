@@ -157,3 +157,20 @@ def test_failed_os_unblock_retains_shared_record(client):
         response = client.delete(f"/api/blocks/{block['id']}", headers=client.csrf)
         assert response.status_code == 502
         assert client.get('/api/state').json['blocked'][0]['ip'] == '192.0.2.80'
+
+
+def test_link_only_ip_page(app):
+    anonymous = app.test_client()
+    response = anonymous.get('/my-ip')
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert '내 IP와 위치 확인' in html
+    assert '<script>' not in html and '<style>' not in html
+    assert '/static/visitor-location.js' in html
+    csp = response.headers['Content-Security-Policy']
+    assert 'connect-src https://ipapi.co https://ipwho.is;' in csp
+    assert "script-src 'self';" in csp
+    assert 'unsafe-inline' not in csp
+    assert 'ipapi.co' not in anonymous.get('/console').headers['Content-Security-Policy']
+    for resource in ('/static/visitor-location.js', '/static/visitor-location.css'):
+        assert anonymous.get(resource).status_code == 200
