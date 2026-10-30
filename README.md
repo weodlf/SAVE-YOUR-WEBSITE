@@ -1,10 +1,11 @@
-# GuardLab & LaunchPad
+# GuardLab, LaunchPad & E-SOC
 
 보안 학습 웹 서비스와 Docker 배포 관리 플랫폼을 프로젝트별로 나눈 저장소입니다.
 
 | 프로젝트 | 기능 | 실행 안내 |
 | --- | --- | --- |
 | **[GuardLab](apps/guardlab/)** | 포트·헤더·패스워드·해시 진단, SQLite 이력, CSV 다운로드, Chart.js 통계 | [GuardLab README](apps/guardlab/README.md) |
+| **[E-SOC](e-soc/)** | 한국어 소개 홈페이지, 실시간 보안 관제 콘솔, 초보자 모드, Flask·Socket.IO | [E-SOC 배포 안내](e-soc/DEPLOY.ko.md) |
 | **[LaunchPad](apps/launchpad/)** | Docker 프로젝트 등록, 빌드·배포, 중지·재시작, 배포 로그·이력, 영구 볼륨 | [LaunchPad README](apps/launchpad/README.md) |
 
 ## 저장소 구조
@@ -74,3 +75,9 @@ python -m pytest -q
 실제 브라우저 및 Docker 검증은 각 프로젝트 README를 참고하세요. 테스트는 임시 DB를 사용하며 사용자 진단 기록을 변경하지 않습니다.
 
 비밀번호, `.env`, SQLite DB, 배포 상태 디렉터리, 가상환경과 캐시는 Git에 포함하지 않습니다. 두 프로젝트의 상태와 데이터는 실행 환경에서 별도로 보관·백업하세요.
+
+## E-SOC Render 배포
+
+새 Web Service에서 Root Directory를 `e-soc`, Runtime을 Docker, Dockerfile Path를 `./Dockerfile`로 설정하세요. 환경변수 `SECRET_KEY`와 `ADMIN_TOKEN`은 서로 다른 32자 이상의 무작위 값으로 지정해야 합니다. 홈페이지는 `/`, 콘솔은 `/console`, 헬스체크는 `/healthz`입니다.
+
+Free 인스턴스는 체험용이며 재시작·재배포 시 SQLite 기록이 사라질 수 있습니다. 기록 보존에는 영구 디스크(`/data`)를 지원하는 요금제가 필요합니다. [E-SOC 안내](e-soc/README.md)와 [배포 문서](e-soc/DEPLOY.ko.md)를 참고하세요.

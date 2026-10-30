@@ -1,0 +1,60 @@
+name: esoc
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    init: true
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set ADMIN_TOKEN in .env}
+      APP_ENV: production
+      HOST: 0.0.0.0
+      PORT: '8080'
+      DATABASE_URL: sqlite:////data/esoc.db
+      COOKIE_SECURE: '1'
+      FIREWALL_ENABLED: '0'
+      SCAN_ALLOWLIST: ${SCAN_ALLOWLIST:-127.0.0.0/8,::1/128}
+    volumes:
+      - security_data:/data
+    networks:
+      - backend
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  proxy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
+    depends_on:
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+networks:
+  backend:
+volumes:
+  security_data:
+  caddy_data:
+  caddy_config:
