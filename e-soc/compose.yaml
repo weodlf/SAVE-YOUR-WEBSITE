@@ -6,7 +6,6 @@ services:
     init: true
     environment:
       SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
-      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set ADMIN_TOKEN in .env}
       APP_ENV: production
       HOST: 0.0.0.0
       PORT: '8080'

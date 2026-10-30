@@ -13,8 +13,6 @@ services:
     envVars:
       - key: SECRET_KEY
         generateValue: true
-      - key: ADMIN_TOKEN
-        generateValue: true
       - key: APP_ENV
         value: production
       - key: HOST

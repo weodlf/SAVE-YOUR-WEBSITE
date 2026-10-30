@@ -78,8 +78,8 @@ python -m pytest -q
 
 ## E-SOC Render 배포
 
-새 Web Service에서 Root Directory를 `e-soc`, Runtime을 Docker, Dockerfile Path를 `./Dockerfile`로 설정하세요. 환경변수 `SECRET_KEY`와 `ADMIN_TOKEN`은 서로 다른 32자 이상의 무작위 값으로 지정해야 합니다. 홈페이지는 `/`, 콘솔은 `/console`, 헬스체크는 `/healthz`입니다.
+새 Web Service에서 Root Directory를 `e-soc`, Runtime을 Docker, Dockerfile Path를 `./Dockerfile`로 설정하세요. 환경변수 `SECRET_KEY`는 32자 이상의 무작위 값으로 지정합니다. 별도 로그인 없이 실제 점검·차단 관리·공유 로그 삭제를 사용할 수 있습니다. 홈페이지는 `/`, 콘솔은 `/console`, 헬스체크는 `/healthz`입니다.
 
 Free 인스턴스는 체험용이며 재시작·재배포 시 SQLite 기록이 사라질 수 있습니다. 기록 보존에는 영구 디스크(`/data`)를 지원하는 요금제가 필요합니다. [E-SOC 안내](e-soc/README.md)와 [배포 문서](e-soc/DEPLOY.ko.md)를 참고하세요.
 
-E-SOC 자동 설정: [Deploy to Render](https://render.com/deploy?repo=https://github.com/weodlf/SAVE-YOUR-WEBSITE). 저장소 루트의 `render.yaml`을 사용하며 비밀키를 자동 생성합니다. Free 체험 설정이므로 영구 데이터 보존은 제공하지 않습니다.
+E-SOC 자동 설정: [Deploy to Render](https://render.com/deploy?repo=https://github.com/weodlf/SAVE-YOUR-WEBSITE). 저장소 루트의 `render.yaml`을 사용하며 세션 비밀키를 자동 생성합니다. Free 체험 설정이므로 영구 데이터 보존은 제공하지 않습니다.

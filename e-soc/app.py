@@ -6,7 +6,7 @@ import secrets
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, redirect, render_template, request, session
 from flask_socketio import SocketIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -21,16 +21,14 @@ def create_app(config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False, MAX_CONTENT_LENGTH=16384,
         SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Strict',
         SESSION_COOKIE_SECURE=os.getenv('COOKIE_SECURE') == '1',
-        ADMIN_TOKEN=os.getenv('ADMIN_TOKEN') or secrets.token_urlsafe(32),
         SCAN_ALLOWLIST=os.getenv('SCAN_ALLOWLIST', '127.0.0.0/8,::1/128'),
         FIREWALL_ENABLED=os.getenv('FIREWALL_ENABLED') == '1',
         DISCORD_WEBHOOK_URL=os.getenv('DISCORD_WEBHOOK_URL', ''))
     if config:
         app.config.update(config)
     if os.getenv('APP_ENV') == 'production' and not app.config.get('TESTING'):
-        for name in ('SECRET_KEY', 'ADMIN_TOKEN'):
-            if not os.getenv(name) or len(os.environ[name]) < 32:
-                raise RuntimeError(f'{name} must be configured with at least 32 characters in production')
+        if not os.getenv('SECRET_KEY') or len(os.environ['SECRET_KEY']) < 32:
+            raise RuntimeError('SECRET_KEY must be configured with at least 32 characters in production')
     db.init_app(app)
     sio = SocketIO(app, async_mode='gevent', cors_allowed_origins=None, max_http_buffer_size=16384)
     limiter = Limiter(get_remote_address, app=app, default_limits=['180 per minute'], storage_uri='memory://')
@@ -59,13 +57,11 @@ def create_app(config=None):
     app.extensions['job_pool'] = pool
     app.extensions['rate_limiter'] = limiter
 
-    def protected(fn):
+    def csrf_protected(fn):
         @wraps(fn)
         def wrapped(*args, **kwargs):
-            if not session.get('authenticated'):
-                return jsonify(error='먼저 운영자 인증을 해 주세요.'), 401
             if request.method != 'GET' and not hmac.compare_digest(request.headers.get('X-CSRF-Token', ''), session.get('csrf', secrets.token_hex(32))):
-                return jsonify(error='CSRF 토큰이 올바르지 않아요. 다시 로그인해 주세요.'), 403
+                return jsonify(error='요청 확인 정보가 만료됐어요. 화면을 새로고침해 주세요.'), 403
             return fn(*args, **kwargs)
         return wrapped
 
@@ -73,10 +69,10 @@ def create_app(config=None):
         row = SecurityLog(ip=ip, kind=kind, severity=severity, message=message, simulated=simulated)
         db.session.add(row)
         db.session.commit()
-        emit('security_alert', serialize(row), to='operators')
+        emit('security_alert', serialize(row), to='dashboard')
         if severity == 'critical' and not simulated:
             pool.submit(notify, kind, message)
-        emit('metrics', metrics(), to='operators')
+        emit('metrics', metrics(), to='dashboard')
         return row
 
     def notify(title, message):
@@ -116,11 +112,11 @@ def create_app(config=None):
 
     @app.get('/console')
     def console():
-        return render_template('index.html', public_mode=True)
+        return render_template('index.html', scan_port=int(os.getenv('PORT', '5000')))
 
     @app.get('/operator')
     def operator():
-        return render_template('index.html', public_mode=False)
+        return redirect('/console')
 
     @app.post('/api/public/inspect')
     @limiter.limit('30 per minute')
@@ -131,20 +127,11 @@ def create_app(config=None):
             return jsonify(error='입력은 4,096자 이내로 작성해 주세요.'), 400
         return jsonify(detected=inspect_payload(payload), simulated=True)
 
-
-    @app.post('/api/login')
-    @limiter.limit('10 per minute')
-    def login():
-        token = (request.get_json(silent=True) or {}).get('token', '')
-        if not isinstance(token, str) or not hmac.compare_digest(token, app.config['ADMIN_TOKEN']):
-            return jsonify(error='운영자 토큰을 확인해 주세요.'), 401
-        session.clear()
-        session.update(authenticated=True, csrf=secrets.token_hex(32))
-        return jsonify(csrf=session['csrf'])
-
     @app.get('/api/state')
-    @protected
+    @csrf_protected
     def state():
+        if 'csrf' not in session:
+            session['csrf'] = secrets.token_hex(32)
         return jsonify(metrics=metrics(), csrf=session['csrf'],
             logs=[serialize(r) for r in db.session.scalars(db.select(SecurityLog).order_by(SecurityLog.id.desc()).limit(100))],
             scans=[serialize(r) for r in db.session.scalars(db.select(ScanHistory).order_by(ScanHistory.id.desc()).limit(20))],
@@ -159,7 +146,7 @@ def create_app(config=None):
                     row = db.session.get(ScanHistory, scan_id)
                     row.status, row.progress = 'running', value
                     db.session.commit()
-                    emit('scan_progress', serialize(row), to='operators')
+                    emit('scan_progress', serialize(row), to='dashboard')
                 result = audit(parsed, ip, port, progress)
                 row = db.session.get(ScanHistory, scan_id)
                 row.status, row.results = 'completed', result
@@ -181,16 +168,17 @@ def create_app(config=None):
                 row.status, row.results = 'failed', {'error': str(exc)}
                 db.session.commit()
             finally:
-                emit('scan_progress', serialize(db.session.get(ScanHistory, scan_id)), to='operators')
-                emit('metrics', metrics(), to='operators')
+                emit('scan_progress', serialize(db.session.get(ScanHistory, scan_id)), to='dashboard')
+                emit('metrics', metrics(), to='dashboard')
                 db.session.remove()
                 slots.release()
 
     @app.post('/api/scans')
-    @protected
+    @csrf_protected
     @limiter.limit('6 per minute')
     def scans():
-        target = (request.get_json(silent=True) or {}).get('target', '')
+        data = request.get_json(silent=True)
+        target = data.get('target') if isinstance(data, dict) else None
         if not isinstance(target, str) or not 1 <= len(target) <= 255:
             return jsonify(error='유효한 서버 주소를 입력해 주세요.'), 400
         if not slots.acquire(blocking=False):
@@ -207,9 +195,11 @@ def create_app(config=None):
         return jsonify(result), 202
 
     @app.post('/api/simulate')
-    @protected
+    @csrf_protected
+    @limiter.limit('30 per minute')
     def simulate():
-        payload = (request.get_json(silent=True) or {}).get('payload', '')
+        data = request.get_json(silent=True)
+        payload = data.get('payload') if isinstance(data, dict) else None
         if not isinstance(payload, str) or len(payload) > 4096:
             return jsonify(error='입력은 4,096자 이내로 작성해 주세요.'), 400
         kinds = inspect_payload(payload)
@@ -218,10 +208,12 @@ def create_app(config=None):
         return jsonify(detected=kinds, simulated=True)
 
     @app.post('/api/inspect')
-    @protected
+    @csrf_protected
+    @limiter.limit('30 per minute')
     def inspect():
         # Integrators must use the returned verdict to deny upstream requests.
-        payload = (request.get_json(silent=True) or {}).get('payload', '')
+        data = request.get_json(silent=True)
+        payload = data.get('payload') if isinstance(data, dict) else None
         if not isinstance(payload, str) or len(payload) > 4096:
             return jsonify(error='Invalid payload'), 400
         ip = str(ipaddress.ip_address(request.remote_addr))
@@ -239,12 +231,41 @@ def create_app(config=None):
                     blocked.add(ip)
             for kind in kinds:
                 record(ip, kind, 'critical', 'Malicious request denied by inspection API')
+            emit('blocks_changed', {}, to='dashboard')
         else:
             record(ip, 'Normal Traffic', 'info', 'Inspection passed')
         return jsonify(allowed=not kinds, detected=kinds), 403 if kinds else 200
 
+    @app.post('/api/blocks')
+    @csrf_protected
+    @limiter.limit('10 per minute')
+    def block_ip():
+        data = request.get_json(silent=True)
+        raw_ip = data.get('ip') if isinstance(data, dict) else None
+        try:
+            address = ipaddress.ip_address(raw_ip) if isinstance(raw_ip, str) else None
+        except ValueError:
+            address = None
+        if address is None or address.is_unspecified or address.is_multicast or getattr(address, 'scope_id', None):
+            return jsonify(error='유효한 단일 IPv4 또는 IPv6 주소를 입력해 주세요.'), 400
+        ip = str(address)
+        with lock:
+            existing = db.session.scalar(db.select(BlockedIP).where(BlockedIP.ip == ip))
+            if existing:
+                return jsonify(serialize(existing))
+            status = 'protected-address' if address.is_loopback else enforce(ip, app.config['FIREWALL_ENABLED'])
+            row = BlockedIP(ip=ip, reason='Manual block', os_status=status)
+            db.session.add(row)
+            db.session.commit()
+            blocked.add(ip)
+            result = serialize(row)
+        record(ip, 'Manual Block', 'medium', 'IP registered in the shared block list')
+        emit('blocks_changed', {}, to='dashboard')
+        return jsonify(result), 201
+
     @app.delete('/api/blocks/<int:block_id>')
-    @protected
+    @csrf_protected
+    @limiter.limit('10 per minute')
     def unblock(block_id):
         with lock:
             row = db.session.get(BlockedIP, block_id)
@@ -257,20 +278,22 @@ def create_app(config=None):
             blocked.discard(row.ip)
             db.session.delete(row)
             db.session.commit()
-        emit('metrics', metrics(), to='operators')
+        emit('metrics', metrics(), to='dashboard')
+        emit('blocks_changed', {}, to='dashboard')
         return jsonify(ok=True)
 
     @app.delete('/api/logs')
-    @protected
+    @csrf_protected
+    @limiter.limit('5 per minute')
     def clear():
         db.session.execute(db.delete(SecurityLog))
         db.session.commit()
-        emit('logs_cleared', {}, to='operators')
-        emit('metrics', metrics(), to='operators')
+        emit('logs_cleared', {}, to='dashboard')
+        emit('metrics', metrics(), to='dashboard')
         return jsonify(ok=True)
 
     @app.get('/api/export')
-    @protected
+    @csrf_protected
     def export():
         response = jsonify(logs=[serialize(r) for r in db.session.scalars(db.select(SecurityLog))],
             scans=[serialize(r) for r in db.session.scalars(db.select(ScanHistory))],
@@ -280,15 +303,11 @@ def create_app(config=None):
 
     @sio.on('connect')
     def connect(auth=None):
-        if not session.get('authenticated'):
-            return False
         from flask_socketio import join_room
-        join_room('operators')
+        join_room('dashboard')
 
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    if not os.getenv('ADMIN_TOKEN'):
-        print('Temporary operator token (set ADMIN_TOKEN for persistent use):', app.config['ADMIN_TOKEN'])
     app.extensions['socketio'].run(app, host=os.getenv('HOST', '127.0.0.1'), port=int(os.getenv('PORT', '5000')), debug=False)

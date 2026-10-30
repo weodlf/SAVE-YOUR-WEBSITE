@@ -12,7 +12,7 @@ def main():
     target = Path(__file__).resolve().parent.parent / '.env'
     domain = sys.argv[1].lower()
     content = (f'DOMAIN={domain}\nSECRET_KEY={secrets.token_hex(32)}\n'
-               f'ADMIN_TOKEN={secrets.token_urlsafe(48)}\nSCAN_ALLOWLIST=127.0.0.0/8,::1/128\n')
+               'SCAN_ALLOWLIST=127.0.0.0/8,::1/128\n')
     try:
         fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError:
