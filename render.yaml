@@ -1,0 +1,31 @@
+# Free demonstration deployment. SQLite records are ephemeral without a paid disk.
+services:
+  - type: web
+    name: e-soc
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: main
+    rootDir: e-soc
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: '8080'
+      - key: COOKIE_SECURE
+        value: '1'
+      - key: FIREWALL_ENABLED
+        value: '0'
+      - key: SCAN_ALLOWLIST
+        value: '127.0.0.0/8,::1/128'
+      - key: DATABASE_URL
+        value: 'sqlite:////data/esoc.db'
