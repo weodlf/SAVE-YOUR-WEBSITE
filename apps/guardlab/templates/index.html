@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10131a"><meta name="description" content="GuardLab — 진단부터 기록과 분석까지, 나만의 보안 학습 워크스페이스.">
+<title>GuardLab — 보안 학습 워크스페이스</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23bef264'/%3E%3Cpath d='M20 7 31 12v9c0 7-11 13-11 13S9 28 9 21v-9Z' fill='%2310131a'/%3E%3Cpath d='m15 20 4 4 7-8' fill='none' stroke='%23bef264' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/app.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" defer></script>
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 12h10m-5-5v10"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3v17h17M8 15l4-6 4 3 5-7"/></symbol>
+<symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1 7M3 4v6h6m3-3v6l4 2"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="9" r="5"/><path d="m12 12 9 9m-4-4 3-3m-6 0 3-3"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m7 7-5 5 5 5m10-10 5 5-5 5M14 3l-4 18"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7a9 9 0 0 0-15-1L2 9m0-6v6h6m-4 8a9 9 0 0 0 15 1l3-3m0 6v-6h-6"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+</defs></svg>
+<a class="skip-link" href="#main">본문으로 이동</a>
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="#overview"><span class="brand-mark"><svg><use href="#i-shield"/></svg></span>GuardLab<span class="brand-dot">.</span></a>
+<div class="workspace"><span class="workspace-avatar">P</span><div><strong>Personal workspace</strong><small>나만의 보안 실험실</small></div><span class="workspace-tag">LAB</span></div>
+<p class="nav-label">WORKSPACE</p>
+<nav aria-label="주 메뉴"><a class="nav-item active" href="#overview"><svg><use href="#i-grid"/></svg>대시보드<span class="nav-indicator"></span></a><a class="nav-item" href="#tools"><svg><use href="#i-scan"/></svg>진단 도구<span class="nav-count">4</span></a><a class="nav-item" href="#analytics"><svg><use href="#i-chart"/></svg>통계 및 분석</a><a class="nav-item" href="#activity"><svg><use href="#i-history"/></svg>활동 기록</a></nav>
+<div class="sidebar-guide"><span class="small-icon"><svg><use href="#i-shield"/></svg></span><strong>작은 실험이, 큰 실력으로.</strong><p>허가받은 환경에서 안전하게<br>보안 원리를 익혀보세요.</p><a href="#tools">첫 진단 시작하기 <span>↗</span></a></div>
+<div class="sidebar-bottom"><span class="avatar">ME</span><div><strong>개인 학습 공간</strong><small>Single-user workspace</small></div><span class="online-dot"></span></div>
+</aside>
+<div class="app-shell">
+<header class="topbar"><div class="breadcrumb"><button class="icon-button mobile-menu" id="menu-toggle" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false"><svg><use href="#i-menu"/></svg></button><span>워크스페이스</span><span class="slash">/</span><strong>대시보드</strong></div><div class="topbar-right"><span id="service-health" class="connection"><i></i>연결 확인 중</span><span class="topbar-divider"></span><span class="avatar small">ME</span></div></header>
+<main id="main">
+<section id="overview" aria-labelledby="page-title">
+<div class="page-heading"><div><p class="eyebrow">YOUR SECURITY, IN FOCUS</p><h1 id="page-title">보안을 이해하는 가장 좋은 방법,<br><span>직접 실험해 보세요.</span></h1><p class="lead">진단하고, 기록하고, 발견하세요. 모든 보안 학습을 한곳에서.</p></div><a class="button primary" href="#tools"><svg><use href="#i-scan"/></svg>새 진단 시작 <svg><use href="#i-arrow"/></svg></a></div>
+<div class="notice"><svg><use href="#i-shield"/></svg><p>안전한 학습을 위한 약속 <span>본인 소유 또는 명시적으로 허가받은 대상만 진단하세요.</span></p><span class="notice-badge">LEARNING ONLY</span></div>
+<div class="metrics">
+<article class="metric-card"><div class="metric-label">전체 진단 횟수 <svg><use href="#i-scan"/></svg></div><p><strong id="metric-total">—</strong><span>회</span></p><small>저장된 전체 진단 이력</small></article>
+<article class="metric-card"><div class="metric-label">오늘의 활동 <svg><use href="#i-chart"/></svg></div><p><strong id="metric-today">—</strong><span>회</span></p><small><i class="tiny-dot"></i>오늘 수행한 진단 · UTC</small></article>
+<article class="metric-card"><div class="metric-label">최근 14일 진단 <svg><use href="#i-history"/></svg></div><p><strong id="metric-recent">—</strong><span>회</span></p><small>기록 없는 날짜는 0으로 집계</small></article>
+<article class="metric-card"><div class="metric-label">사용한 진단 도구 <svg><use href="#i-grid"/></svg></div><p><strong id="metric-tools">—</strong><span>/ 4개</span></p><small>포트 · 헤더 · 패스워드 · 해시</small></article>
+</div>
+</section>
+<section id="analytics" aria-labelledby="stats-title"><div class="section-heading"><div><h2 id="stats-title">학습 인사이트 <span>Statistics</span></h2><p>쌓인 기록에서 나의 학습 흐름을 확인하세요.</p></div><button class="button subtle" id="refresh-stats"><svg><use href="#i-refresh"/></svg>통계 새로고침</button></div>
+<div class="charts-grid"><article class="panel trend-panel"><div class="panel-heading"><div><h3>날짜별 진단 추이</h3><p>최근 14일간의 진단 활동</p></div><span class="pill">최근 14일 · UTC</span></div><div class="chart-box"><canvas id="date-chart" role="img" aria-label="최근 14일 UTC 날짜별 진단 횟수">날짜별 진단 데이터는 아래 통계 데이터 보기에서 확인할 수 있습니다.</canvas><p class="chart-fallback" hidden>차트를 불러올 수 없습니다. 아래 통계 데이터를 확인하세요.</p></div></article>
+<article class="panel distribution-panel"><div class="panel-heading"><div><h3>도구별 진단 비율</h3><p>어떤 도구로 학습했나요?</p></div><span class="pill">전체 기간</span></div><div class="donut-area"><div class="chart-box donut-box"><canvas id="tool-chart" role="img" aria-label="도구별 진단 횟수와 비율">도구별 진단 데이터는 아래 통계 데이터 보기에서 확인할 수 있습니다.</canvas><p class="chart-fallback" hidden>차트를 불러올 수 없습니다.</p></div><div id="tool-legend" class="tool-legend"></div></div></article></div>
+<div class="stats-footer"><p id="stats-status" role="status">통계를 불러오는 중입니다.</p><details><summary>통계 데이터 보기</summary><p id="stats-summary"></p></details></div></section>
+<section id="tools" aria-labelledby="tools-title"><div class="section-heading"><div><h2 id="tools-title">보안 진단 도구 <span>Toolkit</span></h2><p>궁금한 것을 직접 확인하고, 결과를 학습 기록으로 남겨보세요.</p></div><span class="pill">4개의 학습 도구</span></div>
+<div class="tool-grid">
+<form data-api="port-scan" class="panel tool-card"><div class="tool-title"><span class="tool-icon lime"><svg><use href="#i-scan"/></svg></span><span class="tool-category">NETWORK</span><span class="tool-number">01</span></div><h3>포트 스캐너</h3><p class="tool-description">호스트의 열린 포트를 확인하고 네트워크 서비스의 구조를 알아보세요.</p><label>대상 호스트<input name="target" required maxlength="253" placeholder="예: 127.0.0.1" autocomplete="off"></label><label>진단할 포트 <span>쉼표로 구분 · 최대 32개</span><input name="ports" required value="22,80,443" inputmode="text"></label><p class="field-note">최대 20개 워커로 병렬 연결을 확인합니다.</p><button type="submit" class="button tool-submit">포트 진단 시작<svg><use href="#i-arrow"/></svg></button><div class="tool-result" hidden aria-live="polite"><p class="result-heading"></p><div class="result-body"></div><details><summary>응답 데이터 보기</summary><pre></pre></details></div></form>
+<form data-api="header-check" class="panel tool-card"><div class="tool-title"><span class="tool-icon blue"><svg><use href="#i-globe"/></svg></span><span class="tool-category">WEB SECURITY</span><span class="tool-number">02</span></div><h3>보안 헤더 진단</h3><p class="tool-description">웹사이트의 HTTP 보안 헤더를 점검하고 방어 설정을 이해하세요.</p><label>웹사이트 URL<input name="url" type="url" required maxlength="2048" placeholder="https://example.com" autocomplete="off"></label><div class="header-tags"><span>CSP</span><span>HSTS</span><span>X-Frame-Options</span><span>+2</span></div><p class="field-note">5가지 헤더의 존재 여부를 확인합니다. 취약점의 유무를 보장하지 않습니다.</p><button type="submit" class="button tool-submit">헤더 진단 시작<svg><use href="#i-arrow"/></svg></button><div class="tool-result" hidden aria-live="polite"><p class="result-heading"></p><div class="result-body"></div><details><summary>응답 데이터 보기</summary><pre></pre></details></div></form>
+<form data-api="password-analysis" class="panel tool-card"><div class="tool-title"><span class="tool-icon purple"><svg><use href="#i-key"/></svg></span><span class="tool-category">PASSWORD</span><span class="tool-number">03</span></div><h3>패스워드 분석</h3><p class="tool-description">길이와 문자 구성을 분석하며 더 나은 패스워드의 조건을 배워보세요.</p><label>학습용 패스워드<div class="password-field"><input name="password" type="password" required maxlength="4096" autocomplete="off" placeholder="분석할 학습용 값을 입력하세요"><button type="button" class="password-toggle" aria-label="패스워드 표시" aria-pressed="false">표시</button></div></label><p class="privacy-note"><svg><use href="#i-shield"/></svg>입력값은 이력에 저장하지 않습니다.</p><p class="field-note">점수는 길이와 문자 구성에 따른 학습용 지표입니다.</p><button type="submit" class="button tool-submit">패스워드 분석<svg><use href="#i-arrow"/></svg></button><div class="tool-result" hidden aria-live="polite"><p class="result-heading"></p><div class="result-body"></div><details><summary>응답 데이터 보기</summary><pre></pre></details></div></form>
+<form data-api="crypto" class="panel tool-card"><div class="tool-title"><span class="tool-icon orange"><svg><use href="#i-code"/></svg></span><span class="tool-category">CRYPTOGRAPHY</span><span class="tool-number">04</span></div><h3>해시 · 인코딩 랩</h3><p class="tool-description">SHA-256과 Base64를 직접 다루며 해시와 인코딩의 차이를 실험하세요.</p><label>변환 방식<select name="operation"><option value="sha256">SHA-256 해시</option><option value="base64_encode">Base64 인코딩</option><option value="base64_decode">Base64 디코딩</option></select></label><label>입력값<textarea name="text" required maxlength="4096" rows="2" placeholder="변환할 텍스트를 입력하세요"></textarea></label><p class="field-note">입력·출력 원문은 이력에 저장하지 않습니다.</p><button type="submit" class="button tool-submit">변환 실행<svg><use href="#i-arrow"/></svg></button><div class="tool-result" hidden aria-live="polite"><p class="result-heading"></p><div class="result-body"></div><details><summary>응답 데이터 보기</summary><pre></pre></details></div></form>
+</div></section>
+<section id="activity" aria-labelledby="activity-title"><div class="section-heading"><div><h2 id="activity-title">활동 기록 <span>Audit Logs</span></h2><p>모든 실험의 흔적을 다시 살펴보세요.</p></div><div class="actions"><button class="icon-button" id="refresh" aria-label="이력 새로고침"><svg><use href="#i-refresh"/></svg></button><a class="button export-button" href="/api/logs/download"><svg><use href="#i-download"/></svg>📥 CSV 다운로드</a></div></div>
+<div class="panel audit-panel"><div class="audit-toolbar"><div class="filters"><label class="visually-hidden" for="log-search">최근 이력 검색</label><input id="log-search" type="search" placeholder="대상, 도구 또는 결과 검색…"><label class="visually-hidden" for="log-filter">도구 필터</label><select id="log-filter"><option value="">모든 도구</option><option>Port Scanner</option><option>Header Check</option><option>Password Analysis</option><option>Crypto</option></select></div><button id="clear" class="button danger">전체 기록 삭제</button></div><p id="status" class="audit-status" role="status">최근 기록을 불러오는 중입니다.</p><div class="table-scroll"><table><thead><tr><th scope="col">ID</th><th scope="col">진단 도구</th><th scope="col">대상</th><th scope="col">진단 결과</th><th scope="col">수행 시각</th></tr></thead><tbody id="logs"></tbody></table></div><div id="empty-logs" class="empty-state" hidden><span class="empty-icon"><svg><use href="#i-history"/></svg></span><strong>아직 기록이 없어요</strong><p>첫 번째 진단을 실행하면 여기에 학습 기록이 쌓입니다.</p><a href="#tools">진단 도구 둘러보기 →</a></div><div class="audit-footnote">화면에는 최근 50개 기록이 표시됩니다. CSV로는 전체 기록을 내려받을 수 있습니다.</div></div></section>
+<footer class="page-footer"><span><strong>GuardLab.</strong> Learn by exploring.</span><span>나만의 보안 학습 워크스페이스 · v1.0</span></footer>
+</main></div>
+<div id="toast" class="toast" role="status" hidden></div>
+</body></html>

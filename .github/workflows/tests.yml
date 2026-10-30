@@ -1,0 +1,25 @@
+name: Project tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [guardlab, launchpad]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: apps/${{ matrix.project }}/requirements.txt
+      - name: Install project dependencies
+        run: python -m pip install -r apps/${{ matrix.project }}/requirements.txt pytest
+      - name: Test project
+        working-directory: apps/${{ matrix.project }}
+        run: python -m pytest tests/test_*.py -q

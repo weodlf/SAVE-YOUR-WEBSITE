@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: guardlab
+    runtime: docker
+    rootDir: apps/guardlab
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /healthz
+    numInstances: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:////data/security.db
+      - key: DASHBOARD_PASSWORD
+        generateValue: true
+      - key: SCAN_ALLOWED_HOSTS
+        sync: false
+    disk:
+      name: security-data
+      mountPath: /data
+      sizeGB: 1
