@@ -14,7 +14,7 @@ export ADMIN_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32)
 python app.py
 ```
 
-Open http://127.0.0.1:5000 for the Korean website. Choose **콘솔 열기** (or visit `/console`) and enter your `ADMIN_TOKEN`. If omitted, a temporary token is printed only at command-line startup. The application factory generates an inaccessible random token if a production process manager omits configuration, so configure it explicitly. `.env.example` documents configuration; the app does not automatically load .env files. Keep secrets outside source control.
+Open http://127.0.0.1:5000 for the Korean website. Choose **콘솔 열기** (or visit `/console`) for the login-free educational console. The operator interface is `/operator` and requires `ADMIN_TOKEN`. If omitted, a temporary token is printed only at command-line startup. The application factory generates an inaccessible random token if a production process manager omits configuration, so configure it explicitly. `.env.example` documents configuration; the app does not automatically load .env files. Keep secrets outside source control.
 
 Use **모의 위협 검사** to practice without sending payloads to another system. Enable **초보자 모드** for Korean explanations covering what each concept means, why it matters, and what to do next. The glossary is a local educational reference, not a remote AI service. Preferences persist in localStorage; operator credentials do not.
 
@@ -57,3 +57,7 @@ node --check static/app.js
 ```
 
 Tests cover authentication/CSRF, authenticated live events, encoded payload signatures, persistence/export/deletion, asynchronous scan completion, allowlist rejection, safe firewall construction and unblock behavior. They mock network probes and firewall execution.
+
+## Login-free public console
+
+`/console` is an anonymous educational experience. `/api/public/inspect` performs rate-limited, stateless signature checks; submitted strings are not stored or executed. Each browser tab keeps up to 100 demonstration results in memory, and refresh resets them. JSON export and clearing affect only that tab. Actual logs, scans, firewall actions and authenticated Socket.IO streams stay restricted to the `/operator` interface and authenticated APIs. Public mode never opens an operator Socket.IO connection.

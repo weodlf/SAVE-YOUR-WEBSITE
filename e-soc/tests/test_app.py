@@ -89,3 +89,28 @@ def test_headers(client):
     response = client.get('/')
     assert response.status_code == 200
     assert "frame-ancestors 'none'" in response.headers['Content-Security-Policy']
+
+
+def test_public_console_without_login(app):
+    anonymous = app.test_client()
+    html = anonymous.get('/console').get_data(as_text=True)
+    assert 'data-public="true"' in html
+    assert 'hidden id="loginPanel"' in html
+    assert 'data-public="false"' in anonymous.get('/operator').get_data(as_text=True)
+    response = anonymous.post('/api/public/inspect', json={'payload': "' OR 1=1 --"})
+    assert response.status_code == 200
+    assert response.json == {'detected': ['SQL Injection'], 'simulated': True}
+    with app.app_context():
+        from models import SecurityLog
+        assert db.session.query(SecurityLog).count() == 0
+        assert db.session.query(BlockedIP).count() == 0
+
+
+def test_public_access_keeps_operations_private(app):
+    anonymous = app.test_client()
+    for path, method in [('/api/state', 'GET'), ('/api/export', 'GET'),
+                         ('/api/scans', 'POST'), ('/api/inspect', 'POST'),
+                         ('/api/logs', 'DELETE'), ('/api/blocks/1', 'DELETE')]:
+        assert anonymous.open(path, method=method, json={}).status_code == 401
+    for payload in ({'payload': 'x' * 4097}, {'payload': 123}, [], None):
+        assert anonymous.post('/api/public/inspect', json=payload).status_code == 400

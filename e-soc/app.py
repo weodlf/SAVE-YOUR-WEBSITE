@@ -116,7 +116,21 @@ def create_app(config=None):
 
     @app.get('/console')
     def console():
-        return render_template('index.html')
+        return render_template('index.html', public_mode=True)
+
+    @app.get('/operator')
+    def operator():
+        return render_template('index.html', public_mode=False)
+
+    @app.post('/api/public/inspect')
+    @limiter.limit('30 per minute')
+    def public_inspect():
+        data = request.get_json(silent=True)
+        payload = data.get('payload') if isinstance(data, dict) else None
+        if not isinstance(payload, str) or len(payload) > 4096:
+            return jsonify(error='입력은 4,096자 이내로 작성해 주세요.'), 400
+        return jsonify(detected=inspect_payload(payload), simulated=True)
+
 
     @app.post('/api/login')
     @limiter.limit('10 per minute')
